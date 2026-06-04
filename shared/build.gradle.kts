@@ -75,7 +75,7 @@ publishing{
 
             pom{
                 name.set("Finio Auth")
-                description.set("Módulo KMP de autenticação da plataforma Finio")
+                description.set("Finio KMP Module for authentication")
                 url.set("https://github.com/dgbarreto/finio-auth")
 
                 licenses {
