@@ -1,31 +1,76 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# finio-auth
 
-* [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+Módulo KMP de autenticação da plataforma Finio. Encapsula toda a lógica de autenticação — chamadas à API, armazenamento seguro do token e estado do usuário autenticado — publicado no Maven para ser consumido pelo `finio-app`.
 
-* [/shared](./shared/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./shared/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./shared/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./shared/src/jvmMain/kotlin)
-    folder is the appropriate location.
+## Stack
 
-### Running the apps
+- **Linguagem**: Kotlin Multiplatform
+- **HTTP**: Ktor Client
+- **Serialização**: kotlinx.serialization
+- **Armazenamento seguro**: EncryptedSharedPreferences (Android) / NSUserDefaults (iOS)
+- **DI**: Koin *(planejado — Dia 29)*
+- **Publicação**: GitHub Packages (Maven)
 
-Use the run configurations provided by the run widget in your IDE's toolbar. You can also use these commands and options:
+## Targets
 
-- Android app: `./gradlew :androidApp:assembleDebug`
-- iOS app: open the [/iosApp](./iosApp) directory in Xcode and run it from there.
+| Target | Status |
+|--------|--------|
+| Android | ✅ |
+| iOS Arm64 | ✅ |
+| iOS Simulator Arm64 | ✅ |
 
-### Running tests
+## Estrutura
 
-Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
+```
+shared/src/
+  commonMain/
+    kotlin/dev/finio/auth/
+      data/
+        dto/
+          AuthDtos.kt             ← DTOs de request e response
+        remote/
+          AuthHttpClient.kt       ← configuração do Ktor Client
+          AuthRemoteDataSource.kt ← chamadas à API
+      storage/
+        TokenStorage.kt           ← interface de armazenamento
+        TokenStorageFactory.kt    ← expect fun createTokenStorage()
+  androidMain/
+    kotlin/dev/finio/auth/
+      storage/
+        TokenStorageFactory.android.kt ← EncryptedSharedPreferences
+  iosMain/
+    kotlin/dev/finio/auth/
+      storage/
+        TokenStorageFactory.ios.kt ← NSUserDefaults
+```
 
-- Android tests: `./gradlew :shared:testAndroidHostTest`
-- iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
+## Endpoints consumidos
 
----
+Todos os endpoints são do `finio-api` em produção no Railway.
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/auth/register` | Cadastro de usuário |
+| POST | `/auth/login` | Login |
+| GET | `/auth/profile` | Dados do usuário autenticado |
+
+## Módulos planejados
+
+- **AuthRepository** — orquestra remote + storage (Dia 28)
+- **AuthViewModel** — MVVM com Koin (Dia 29)
+- **Publicação Maven** — GitHub Packages via Bitrise (Dia 30+)
+
+## Versões principais
+
+```toml
+kotlin = "2.3.21"
+ktor = "3.1.3"
+kotlinx-coroutines = "1.10.2"
+kotlinx-serialization = "1.8.1"
+```
+
+## Build
+
+```bash
+./gradlew :shared:assemble
+```
