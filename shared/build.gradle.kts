@@ -1,18 +1,42 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) load(file.inputStream())
+}
+
+val publishVersion = System.getenv("BITRISE_GIT_TAG")
+    ?: localProperties["version"] as String?
+    ?: "0.1.0-SNAPSHOT"
+
 plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
+    id("maven-publish")
 }
 
 kotlin {
-    androidLibrary {
-        namespace = "com.finio.auth"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+    listOf(
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "Auth"
+            isStatic = true
+        }
     }
 
-    iosArm64()
-    iosSimulatorArm64()
+    androidLibrary {
+        namespace = "dev.finio.auth"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -35,3 +59,54 @@ kotlin {
         }
     }
 }
+
+publishing{
+    publications{
+        withType<MavenPublication> {
+            groupId = "dev.finio"
+            version = publishVersion
+            artifactId = when(name){
+                "android" -> "finio-auth-android"
+                "iosArm64" -> "finio-auth-iosarm64"
+                "iosSimulatorArm64" -> "finio-auth-iossimulatorarm64"
+                "kotlinMultiplatform" -> "finio-auth-kmp"
+                else -> "finio-auth-$name"
+            }
+
+            pom{
+                name.set("Finio Auth")
+                description.set("Módulo KMP de autenticação da plataforma Finio")
+                url.set("https://github.com/dgbarreto/finio-auth")
+
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://opensource.org/licences/MIT")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("dgbarreto")
+                        name.set("Danilo Barreto")
+                        email.set("dgbarreto@gmail.com")
+                    }
+                }
+            }
+        }
+    }
+
+    repositories{
+        maven{
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/dgbarreto/finio-auth")
+            credentials {
+                username = localProperties["github.actor"] as String?
+                    ?: System.getenv("GITHUB_ACTOR")
+                password = localProperties["github.token"] as String?
+                    ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
