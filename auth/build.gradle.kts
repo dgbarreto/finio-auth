@@ -66,11 +66,11 @@ publishing{
             groupId = "dev.finio"
             version = publishVersion
             artifactId = when(name){
-                "android" -> "finio-auth-android"
-                "iosArm64" -> "finio-auth-iosarm64"
-                "iosSimulatorArm64" -> "finio-auth-iossimulatorarm64"
-                "kotlinMultiplatform" -> "finio-auth-kmp"
-                else -> "finio-auth-$name"
+                "android" -> "auth-android"
+                "iosArm64" -> "auth-iosarm64"
+                "iosSimulatorArm64" -> "auth-iossimulatorarm64"
+                "kotlinMultiplatform" -> "auth-kmp"
+                else -> "auth-$name"
             }
 
             pom{
