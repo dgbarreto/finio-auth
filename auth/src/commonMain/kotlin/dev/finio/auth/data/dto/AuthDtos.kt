@@ -1,5 +1,6 @@
 package dev.finio.auth.data.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -23,6 +24,7 @@ data class AuthResponseDto(
 
 @Serializable
 data class UserDto(
+    @SerialName("_id")
     val id: String,
     val name: String,
     val email: String
