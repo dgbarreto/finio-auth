@@ -65,4 +65,14 @@ class AuthViewModel(
         repository.logout()
         _state.value = AuthState.Unauthenticated
     }
+
+    fun loadProfile(){
+        viewModelScope.launch {
+            _state.value = AuthState.Loading
+
+            val user = repository.getProfile()
+
+            _state.value = if (user != null) AuthState.Authenticated(user) else AuthState.Unauthenticated
+        }
+    }
 }
