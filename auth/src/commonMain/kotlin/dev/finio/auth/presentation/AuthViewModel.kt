@@ -65,9 +65,11 @@ class AuthViewModel(
     }
 
     fun logout(){
-        repository.logout()
-        _state.value = AuthState.Unauthenticated
-        authEventBus.emit(AuthEvent.SessionExpired)
+        viewModelScope.launch {
+            repository.logout()
+            _state.value = AuthState.Unauthenticated
+            authEventBus.emit(AuthEvent.SessionExpired)
+        }
     }
 
     fun loadProfile(){
