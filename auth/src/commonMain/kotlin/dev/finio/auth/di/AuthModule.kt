@@ -23,5 +23,5 @@ fun authModule(baseUrl: String): Module = module{
         )
     }
 
-    factory { AuthViewModel(repository = get()) }
+    factory { AuthViewModel(repository = get(), authEventBus = get()) }
 }

@@ -3,6 +3,8 @@ package dev.finio.auth.presentation
 import dev.finio.auth.domain.model.AuthResult
 import dev.finio.auth.domain.model.AuthState
 import dev.finio.auth.domain.repository.AuthRepository
+import dev.finio.auth.event.AuthEvent
+import dev.finio.auth.event.AuthEventBus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -12,7 +14,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
+    private val authEventBus: AuthEventBus
 ){
     private val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val _state = MutableStateFlow<AuthState>(AuthState.Idle)
@@ -64,6 +67,7 @@ class AuthViewModel(
     fun logout(){
         repository.logout()
         _state.value = AuthState.Unauthenticated
+        authEventBus.emit(AuthEvent.SessionExpired)
     }
 
     fun loadProfile(){
