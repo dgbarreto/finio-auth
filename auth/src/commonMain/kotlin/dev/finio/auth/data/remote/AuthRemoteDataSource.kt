@@ -3,6 +3,7 @@ package dev.finio.auth.data.remote
 import dev.finio.auth.data.dto.AuthResponseDto
 import dev.finio.auth.data.dto.LoginRequestDto
 import dev.finio.auth.data.dto.RegisterRequestDto
+import dev.finio.auth.data.dto.UpdateFcmTokenDto
 import dev.finio.auth.data.dto.UserDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -33,5 +34,12 @@ class AuthRemoteDataSource(
     suspend fun getProfile(token: String): UserDto =
         client.get("$baseUrl/auth/profile"){
             header(HttpHeaders.Authorization, "Bearer $token")
+        }.body()
+
+    suspend fun saveFcmToken(token: String, request: UpdateFcmTokenDto): UserDto =
+        client.post("$baseUrl/auth/fcm-token"){
+            header(HttpHeaders.Authorization, "Bearer $token")
+            contentType(ContentType.Application.Json)
+            setBody(request)
         }.body()
 }

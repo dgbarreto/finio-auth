@@ -2,6 +2,7 @@ package dev.finio.auth.domain.repository
 
 import dev.finio.auth.data.dto.LoginRequestDto
 import dev.finio.auth.data.dto.RegisterRequestDto
+import dev.finio.auth.data.dto.UpdateFcmTokenDto
 import dev.finio.auth.data.mapper.toDomain
 import dev.finio.auth.data.remote.AuthRemoteDataSource
 import dev.finio.auth.domain.model.AuthResult
@@ -53,5 +54,18 @@ class AuthRepositoryImpl(
 
     override fun isLoggedIn(): Boolean {
         return tokenStorage.getToken() != null
+    }
+
+    override suspend fun saveFcmToken(token: String): Boolean {
+        return try {
+            val authToken = tokenStorage.getToken() ?: return false
+            remoteDataSource.saveFcmToken(
+                authToken,
+                UpdateFcmTokenDto(fcmToken = token)
+            )
+            true
+        } catch (e: Exception){
+            false
+        }
     }
 }

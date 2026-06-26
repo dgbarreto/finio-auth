@@ -9,4 +9,5 @@ interface AuthRepository{
     suspend fun getProfile(): User?
     fun logout()
     fun isLoggedIn(): Boolean
+    suspend fun saveFcmToken(token: String): Boolean
 }

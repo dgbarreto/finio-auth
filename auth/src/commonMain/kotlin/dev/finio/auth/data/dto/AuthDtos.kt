@@ -29,3 +29,8 @@ data class UserDto(
     val name: String,
     val email: String
 )
+
+@Serializable
+data class UpdateFcmTokenDto(
+    val fcmToken: String
+)
