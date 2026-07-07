@@ -5,6 +5,7 @@ import dev.finio.auth.data.dto.RegisterRequestDto
 import dev.finio.auth.data.dto.UpdateFcmTokenDto
 import dev.finio.auth.data.mapper.toDomain
 import dev.finio.auth.data.remote.AuthRemoteDataSource
+import dev.finio.auth.domain.model.AuthError
 import dev.finio.auth.domain.model.AuthResult
 import dev.finio.auth.domain.model.User
 import dev.finio.auth.storage.TokenStorage
@@ -22,7 +23,9 @@ class AuthRepositoryImpl(
             tokenStorage.saveToken(response.token)
             AuthResult.Success(response.toDomain())
         } catch (e: Exception){
-            AuthResult.Error(e.message ?: "Registration failed")
+            AuthResult.Error(
+                AuthError.Unknown(e.message ?: "Sign up faileed")
+            )
         }
     }
 
@@ -33,8 +36,13 @@ class AuthRepositoryImpl(
             )
             tokenStorage.saveToken(response.token)
             AuthResult.Success(response.toDomain())
+        } catch(e: io.ktor.client.plugins.ClientRequestException){
+            when(e.response.status.value){
+                401, 400 -> AuthResult.Error(AuthError.InvalidCredentials)
+                else -> AuthResult.Error(AuthError.Unknown(e.message ?: "Login failed"))
+            }
         } catch (e: Exception){
-            AuthResult.Error(e.message ?: "Login failed")
+            AuthResult.Error(AuthError.NetworkError)
         }
     }
 

@@ -48,7 +48,7 @@ class AuthViewModel(
 
             when(val result = repository.login(email, password)){
                 is AuthResult.Success -> _state.value = AuthState.Authenticated(result.user)
-                is AuthResult.Error -> _state.value = AuthState.Error(result.message)
+                is AuthResult.Error -> _state.value = AuthState.Error(result.error)
             }
         }
     }
@@ -59,7 +59,7 @@ class AuthViewModel(
 
             when(val result = repository.register(name, email, password)){
                 is AuthResult.Success -> _state.value = AuthState.Authenticated(result.user)
-                is AuthResult.Error -> _state.value = AuthState.Error(result.message)
+                is AuthResult.Error -> _state.value = AuthState.Error(result.error)
             }
         }
     }
