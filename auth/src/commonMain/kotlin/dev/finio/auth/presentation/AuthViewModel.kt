@@ -81,4 +81,10 @@ class AuthViewModel(
             _state.value = if (user != null) AuthState.Authenticated(user) else AuthState.Unauthenticated
         }
     }
+
+    fun saveFcmToken(token: String){
+        viewModelScope.launch {
+            repository.saveFcmToken(token)
+        }
+    }
 }
