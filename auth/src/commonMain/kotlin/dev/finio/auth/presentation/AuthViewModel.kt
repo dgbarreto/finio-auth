@@ -5,6 +5,7 @@ import dev.finio.auth.domain.model.AuthState
 import dev.finio.auth.domain.repository.AuthRepository
 import dev.finio.auth.event.AuthEvent
 import dev.finio.auth.event.AuthEventBus
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,9 +16,10 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(
     private val repository: AuthRepository,
-    private val authEventBus: AuthEventBus
+    private val authEventBus: AuthEventBus,
+    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default
 ){
-    private val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val viewModelScope = CoroutineScope(SupervisorJob() + coroutineDispatcher)
     private val _state = MutableStateFlow<AuthState>(AuthState.Idle)
     val state: StateFlow<AuthState> = _state.asStateFlow()
 

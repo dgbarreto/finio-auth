@@ -11,8 +11,8 @@ val publishVersion = System.getenv("BITRISE_GIT_TAG")
     ?: "0.1.0-SNAPSHOT"
 
 plugins {
-    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinSerialization)
     id("maven-publish")
 }
@@ -56,6 +56,11 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+        }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
